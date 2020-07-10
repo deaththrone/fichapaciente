@@ -602,14 +602,15 @@ public class FichaClinica extends javax.swing.JFrame {
                 Class.forName("org.postgresql.Driver");
                 C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
                 stmt = C.createStatement();
-                System.out.println("hola1");
-                ConsultaGuardar = "INSERT INTO public.paciente VALUES ('" + Rut + "', '" + Serie + "'. '" + Nombre + "', "
+                
+                ConsultaGuardar = "INSERT INTO public.paciente VALUES ('" + Rut + "', '" + Serie + "', '" + Nombre + "', "
                         + "'" + Nacimiento + "', '" + Domicilio + "', '" + Edad + "', '" + Telefono + "', '" + Correo + "', "
                         + "'" + Prevision + "', '" + Ingreso + "', '" + Motivo + "')";
-                System.out.println("hola2");
+                
                 stmt.executeUpdate(ConsultaGuardar);
+                
                 JOptionPane.showMessageDialog(null, "Datos guardados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-                System.out.println("hola3");
+                
                 stmt.close();
                 C.close();
             }

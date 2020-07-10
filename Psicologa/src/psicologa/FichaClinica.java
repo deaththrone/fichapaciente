@@ -515,6 +515,110 @@ public class FichaClinica extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_LimiteIngreso
 
+    //Botón para buscar en la BD los datos de un paciente respecto a su RUT
+    private void Buscar(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Buscar
+        Connection C = null;
+        Statement stmt = null;
+        String ConsultaRut;
+        String Rut = TextRut.getText();
+        String Serie = "", Nombre = "", Nacimiento = "", Edad = "", Domicilio = "", Correo = "", Telefono = "", Prevision = "", Ingreso = "", Motivo = "";
+        
+        if(Rut.length() < 9){
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "Rut mal ingresado.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            try{
+                Class.forName("org.postgresql.Driver");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                stmt = C.createStatement();
+                
+                ConsultaRut = "SELECT * FROM public.paciente WHERE rut = '" + Rut + "'";
+
+                ResultSet rs = stmt.executeQuery(ConsultaRut);
+                
+                while(rs.next()){
+                    Serie = rs.getString("n_serie");
+                    Nombre = rs.getString("nombre");
+                    Nacimiento = rs.getString("fecha_nacimiento");
+                    Edad = rs.getString("edad");
+                    Domicilio = rs.getString("direccion");
+                    Correo = rs.getString("correo");
+                    Telefono = rs.getString("telefono");
+                    Prevision = rs.getString("sistema_previsional");
+                    Ingreso = rs.getString("fecha_ingreso");
+                    Motivo = rs.getString("motivo_consulta");
+                }
+                
+                TextSerie.setText(Serie.trim());
+                TextNombre.setText(Nombre.trim());
+                TextNacimiento.setText(Nacimiento.trim());
+                TextEdad.setText(Edad.trim());
+                TextDomicilio.setText(Domicilio.trim());
+                TextCorreo.setText(Correo.trim());
+                TextTelefono.setText(Telefono.trim());
+                ComboPrevision.setSelectedItem(Prevision);
+                TextIngreso.setText(Ingreso.trim());
+                TextMotivo.setText(Motivo.trim());
+                
+                if(Nombre == ""){
+                    JOptionPane.showMessageDialog(null, "Paciente no existe.\nPuede proceder a agregarlo.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                }
+                
+                rs.close();
+                stmt.close();
+                C.close();
+            }
+            catch(Exception e){
+                getToolkit().beep();
+                JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_Buscar
+
+    //Botón para guardar en la BD los datos de un paciente
+    private void Guardar(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Guardar
+        Connection C = null;
+        Statement stmt = null;
+        String ConsultaGuardar;
+        String Rut = TextRut.getText();
+        String Serie = TextSerie.getText();
+        String Nombre = TextNombre.getText();
+        String Nacimiento = TextNacimiento.getText();
+        int Edad = Integer.parseInt(TextEdad.getText());
+        String Domicilio = TextDomicilio.getText();
+        String Correo = TextCorreo.getText();
+        String Telefono = TextTelefono.getText();
+        String Prevision = ComboPrevision.getSelectedItem().toString();
+        String Ingreso = TextIngreso.getText();
+        String Motivo = TextMotivo.getText();
+        
+        if(Rut.isEmpty()){
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "No puede dejar campo en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            try{
+                Class.forName("org.postgresql.Driver");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                stmt = C.createStatement();
+                System.out.println("hola1");
+                ConsultaGuardar = "INSERT INTO public.paciente VALUES ('" + Rut + "', '" + Serie + "'. '" + Nombre + "', "
+                        + "'" + Nacimiento + "', '" + Domicilio + "', '" + Edad + "', '" + Telefono + "', '" + Correo + "', "
+                        + "'" + Prevision + "', '" + Ingreso + "', '" + Motivo + "')";
+                System.out.println("hola2");
+                stmt.executeUpdate(ConsultaGuardar);
+                JOptionPane.showMessageDialog(null, "Datos guardados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                System.out.println("hola3");
+                stmt.close();
+                C.close();
+            }
+            catch(Exception e){
+                getToolkit().beep();
+                JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_Guardar
 
     //Botón para editar de la BD los datos de un paciente
     private void Editar(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Editar

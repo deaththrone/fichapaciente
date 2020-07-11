@@ -75,7 +75,7 @@ public class FichaClinica extends javax.swing.JFrame {
         ButtonRut = new javax.swing.JButton();
         ButtonGuardar = new javax.swing.JButton();
         ButtonEditar = new javax.swing.JButton();
-        ButtonVaciar = new javax.swing.JButton();
+        ButtonLimpiar = new javax.swing.JButton();
         ButtonVerFichas = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -239,11 +239,11 @@ public class FichaClinica extends javax.swing.JFrame {
             }
         });
 
-        ButtonVaciar.setBackground(new java.awt.Color(0, 173, 58));
-        ButtonVaciar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        ButtonVaciar.setForeground(new java.awt.Color(255, 255, 255));
-        ButtonVaciar.setText("Vaciar");
-        ButtonVaciar.addMouseListener(new java.awt.event.MouseAdapter() {
+        ButtonLimpiar.setBackground(new java.awt.Color(0, 173, 58));
+        ButtonLimpiar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        ButtonLimpiar.setForeground(new java.awt.Color(255, 255, 255));
+        ButtonLimpiar.setLabel("Limpiar");
+        ButtonLimpiar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 Vaciar(evt);
             }
@@ -285,7 +285,7 @@ public class FichaClinica extends javax.swing.JFrame {
                                             .addComponent(LabelIngreso)
                                             .addGap(37, 37, 37))
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                            .addComponent(ButtonVaciar)
+                                            .addComponent(ButtonLimpiar)
                                             .addGap(67, 67, 67)))
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(TextIngreso)
@@ -406,7 +406,7 @@ public class FichaClinica extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ButtonGuardar)
                     .addComponent(ButtonEditar)
-                    .addComponent(ButtonVaciar)
+                    .addComponent(ButtonLimpiar)
                     .addComponent(ButtonVerFichas))
                 .addGap(40, 40, 40))
         );
@@ -593,9 +593,10 @@ public class FichaClinica extends javax.swing.JFrame {
         String Ingreso = TextIngreso.getText();
         String Motivo = TextMotivo.getText();
         
-        if(Rut.isEmpty()){
+        if(Rut.isEmpty() || Nombre.isEmpty() || Nacimiento.isEmpty() || 
+                Domicilio.isEmpty() || Ingreso.isEmpty() || Motivo.isEmpty()){
             getToolkit().beep();
-            JOptionPane.showMessageDialog(null, "No puede dejar campo en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Hay campos que no pueden quedar en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
         }
         else{
             try{
@@ -608,7 +609,6 @@ public class FichaClinica extends javax.swing.JFrame {
                         + "'" + Prevision + "', '" + Ingreso + "', '" + Motivo + "')";
                 
                 stmt.executeUpdate(ConsultaGuardar);
-                
                 JOptionPane.showMessageDialog(null, "Datos guardados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
                 
                 stmt.close();
@@ -623,7 +623,48 @@ public class FichaClinica extends javax.swing.JFrame {
 
     //Botón para editar de la BD los datos de un paciente
     private void Editar(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Editar
+        Connection C = null;
+        Statement stmt = null;
+        String ConsultaEditar;
+        String Rut = TextRut.getText();
+        String Serie = TextSerie.getText();
+        String Nombre = TextNombre.getText();
+        String Nacimiento = TextNacimiento.getText();
+        int Edad = Integer.parseInt(TextEdad.getText());
+        String Domicilio = TextDomicilio.getText();
+        String Correo = TextCorreo.getText();
+        String Telefono = TextTelefono.getText();
+        String Prevision = ComboPrevision.getSelectedItem().toString();
+        String Ingreso = TextIngreso.getText();
+        String Motivo = TextMotivo.getText();
         
+        if(Rut.isEmpty() || Nombre.isEmpty() || Nacimiento.isEmpty() || 
+                Domicilio.isEmpty() || Ingreso.isEmpty() || Motivo.isEmpty()){
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "Hay campos que no pueden quedar en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            try{
+                Class.forName("org.postgresql.Driver");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                stmt = C.createStatement();
+                
+                ConsultaEditar = "UPDATE public.paciente SET n_serie = '" + Serie + "', nombre = '" + Nombre + "'"
+                        + ", fecha_nacimiento = '" + Nacimiento + "', direccion = '" + Domicilio + "', edad = '" + Edad + "'"
+                        + ", telefono = '" + Telefono + "', correo = '" + Correo + "', sistema_previsional = '" + Prevision + "'"
+                        + ", fecha_ingreso = '" + Ingreso + "', motivo_consulta = '" + Motivo + "' WHERE rut = '" + Rut + "'";
+                
+                stmt.executeUpdate(ConsultaEditar);
+                JOptionPane.showMessageDialog(null, "Datos editados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                
+                stmt.close();
+                C.close();
+            }
+            catch(Exception e){
+                getToolkit().beep();
+                JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_Editar
 
     //Botón para reiniciar los valores del formulario
@@ -634,7 +675,7 @@ public class FichaClinica extends javax.swing.JFrame {
         TextNacimiento.setText("");
         TextEdad.setText("");
         TextDomicilio.setText("");
-        TextTelefono.setText("9");
+        TextTelefono.setText("9 ");
         TextCorreo.setText("");
         TextMotivo.setText("");
         ComboPrevision.setSelectedIndex(0);
@@ -687,8 +728,8 @@ public class FichaClinica extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ButtonEditar;
     private javax.swing.JButton ButtonGuardar;
+    private javax.swing.JButton ButtonLimpiar;
     private javax.swing.JButton ButtonRut;
-    private javax.swing.JButton ButtonVaciar;
     private javax.swing.JButton ButtonVerFichas;
     private javax.swing.JComboBox<String> ComboPrevision;
     private javax.swing.JScrollPane JScrollPane;

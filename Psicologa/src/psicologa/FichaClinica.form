@@ -49,7 +49,7 @@
                                           <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="1" attributes="0">
-                                          <Component id="ButtonVaciar" min="-2" max="-2" attributes="0"/>
+                                          <Component id="ButtonLimpiar" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace min="-2" pref="67" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -217,7 +217,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="ButtonGuardar" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ButtonEditar" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="ButtonVaciar" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="ButtonLimpiar" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ButtonVerFichas" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
@@ -545,7 +545,7 @@
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="Editar"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="ButtonVaciar">
+    <Component class="javax.swing.JButton" name="ButtonLimpiar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="3a" green="ad" red="0" type="rgb"/>
@@ -556,7 +556,7 @@
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Vaciar"/>
+        <Property name="label" type="java.lang.String" value="Limpiar"/>
       </Properties>
       <Events>
         <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="Vaciar"/>

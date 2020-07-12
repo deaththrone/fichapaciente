@@ -3,7 +3,6 @@
 package psicologa;
 
 //imports
-//import com.placeholder.PlaceHolder;
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,15 +32,10 @@ public class FichaClinica extends javax.swing.JFrame {
         TextIngreso.setText(formato.format(fecha));
         TextIngreso.setHorizontalAlignment(TextIngreso.CENTER);
         
-        //PHolders();
-        
+        //Se desactiva el boton "Agregar ficha" para activarlo solo si existe el paciente
+        ButtonAgregarFichas.setEnabled(false);
+                
     }
-
-    /*public void PHolders(){
-        LabelLogo.requestFocus();
-        PlaceHolder pholder;
-        pholder = new PlaceHolder(TextRut,"Solo K mayúsculas");
-    }*/
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -76,7 +70,8 @@ public class FichaClinica extends javax.swing.JFrame {
         ButtonGuardar = new javax.swing.JButton();
         ButtonEditar = new javax.swing.JButton();
         ButtonLimpiar = new javax.swing.JButton();
-        ButtonVerFichas = new javax.swing.JButton();
+        ButtonAgregarFichas = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Ficha Clínica");
@@ -249,11 +244,11 @@ public class FichaClinica extends javax.swing.JFrame {
             }
         });
 
-        ButtonVerFichas.setBackground(new java.awt.Color(0, 173, 58));
-        ButtonVerFichas.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        ButtonVerFichas.setForeground(new java.awt.Color(255, 255, 255));
-        ButtonVerFichas.setText("Ver fichas");
-        ButtonVerFichas.addMouseListener(new java.awt.event.MouseAdapter() {
+        ButtonAgregarFichas.setBackground(new java.awt.Color(0, 173, 58));
+        ButtonAgregarFichas.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        ButtonAgregarFichas.setForeground(new java.awt.Color(255, 255, 255));
+        ButtonAgregarFichas.setLabel("Agregar ficha");
+        ButtonAgregarFichas.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 VerFichas(evt);
             }
@@ -286,16 +281,16 @@ public class FichaClinica extends javax.swing.JFrame {
                                             .addGap(37, 37, 37))
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                             .addComponent(ButtonLimpiar)
-                                            .addGap(67, 67, 67)))
+                                            .addGap(79, 79, 79)))
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(TextIngreso)
                                         .addGroup(layout.createSequentialGroup()
                                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                 .addComponent(TextTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addGroup(layout.createSequentialGroup()
-                                                    .addGap(31, 31, 31)
-                                                    .addComponent(ButtonVerFichas)))
-                                            .addGap(0, 0, Short.MAX_VALUE))))
+                                                    .addGap(15, 15, 15)
+                                                    .addComponent(ButtonAgregarFichas)))
+                                            .addGap(0, 16, Short.MAX_VALUE))))
                                 .addComponent(TextDomicilio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 619, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(54, 54, 54))
                     .addGroup(layout.createSequentialGroup()
@@ -331,17 +326,19 @@ public class FichaClinica extends javax.swing.JFrame {
                                     .addGap(109, 109, 109)
                                     .addComponent(TextNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                     .addComponent(LabelNacimiento)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(70, 70, 70)
-                                        .addComponent(ButtonGuardar)))
-                                .addGap(107, 107, 107)
+                                    .addComponent(ButtonGuardar))
+                                .addGap(105, 105, 105)
                                 .addComponent(ButtonEditar)))
                         .addGap(0, 0, Short.MAX_VALUE))))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(LabelLogo))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jSeparator1)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -402,12 +399,14 @@ public class FichaClinica extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(52, 52, 52)
                         .addComponent(LabelMotivo)))
-                .addGap(40, 40, 40)
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ButtonGuardar)
                     .addComponent(ButtonEditar)
                     .addComponent(ButtonLimpiar)
-                    .addComponent(ButtonVerFichas))
+                    .addComponent(ButtonAgregarFichas))
                 .addGap(40, 40, 40))
         );
 
@@ -550,19 +549,21 @@ public class FichaClinica extends javax.swing.JFrame {
                     Motivo = rs.getString("motivo_consulta");
                 }
                 
-                TextSerie.setText(Serie.trim());
-                TextNombre.setText(Nombre.trim());
-                TextNacimiento.setText(Nacimiento.trim());
-                TextEdad.setText(Edad.trim());
-                TextDomicilio.setText(Domicilio.trim());
-                TextCorreo.setText(Correo.trim());
-                TextTelefono.setText(Telefono.trim());
-                ComboPrevision.setSelectedItem(Prevision);
-                TextIngreso.setText(Ingreso.trim());
-                TextMotivo.setText(Motivo.trim());
-                
                 if(Nombre == ""){
                     JOptionPane.showMessageDialog(null, "Paciente no existe.\nPuede proceder a agregarlo.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                }
+                else{
+                    TextSerie.setText(Serie.trim());
+                    TextNombre.setText(Nombre.trim());
+                    TextNacimiento.setText(Nacimiento.trim());
+                    TextEdad.setText(Edad.trim());
+                    TextDomicilio.setText(Domicilio.trim());
+                    TextCorreo.setText(Correo.trim());
+                    TextTelefono.setText(Telefono.trim());
+                    ComboPrevision.setSelectedItem(Prevision);
+                    TextIngreso.setText(Ingreso.trim());
+                    TextMotivo.setText(Motivo.trim());
+                    ButtonAgregarFichas.setEnabled(true);
                 }
                 
                 rs.close();
@@ -675,18 +676,24 @@ public class FichaClinica extends javax.swing.JFrame {
         TextNacimiento.setText("");
         TextEdad.setText("");
         TextDomicilio.setText("");
-        TextTelefono.setText("9 ");
+        TextTelefono.setText("9");
         TextCorreo.setText("");
         TextMotivo.setText("");
         ComboPrevision.setSelectedIndex(0);
+        ButtonAgregarFichas.setEnabled(false);
         
         SimpleDateFormat formato = new SimpleDateFormat("dd MMMMMMMMMM yyyy");
         Date fecha = new Date(System.currentTimeMillis());
         TextIngreso.setText(formato.format(fecha));
     }//GEN-LAST:event_Vaciar
 
+    //Botón para abrir la ventana para agregar fichas
     private void VerFichas(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_VerFichas
         // TODO add your handling code here:
+        if (ButtonAgregarFichas.isEnabled() == true){
+            FichasPacientes x = new FichasPacientes();
+        x.setVisible(true);
+        }
     }//GEN-LAST:event_VerFichas
 
     /**
@@ -726,11 +733,11 @@ public class FichaClinica extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ButtonAgregarFichas;
     private javax.swing.JButton ButtonEditar;
     private javax.swing.JButton ButtonGuardar;
     private javax.swing.JButton ButtonLimpiar;
     private javax.swing.JButton ButtonRut;
-    private javax.swing.JButton ButtonVerFichas;
     private javax.swing.JComboBox<String> ComboPrevision;
     private javax.swing.JScrollPane JScrollPane;
     private javax.swing.JLabel LabelCorreo;
@@ -753,8 +760,9 @@ public class FichaClinica extends javax.swing.JFrame {
     private javax.swing.JTextArea TextMotivo;
     private javax.swing.JTextField TextNacimiento;
     private javax.swing.JTextField TextNombre;
-    private javax.swing.JTextField TextRut;
+    public static javax.swing.JTextField TextRut;
     private javax.swing.JTextField TextSerie;
     private javax.swing.JTextField TextTelefono;
+    private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }

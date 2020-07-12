@@ -4,9 +4,13 @@ package psicologa;
 
 //imports
 import java.awt.event.KeyEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 public class FichasPacientes extends javax.swing.JFrame {
 
@@ -34,6 +38,11 @@ public class FichasPacientes extends javax.swing.JFrame {
         //el teclado de manera automática al momento de abrir el Form
         TextObservacion.requestFocus();
         
+        //Se realiza un if para revisar si se esta agregando o no una ubicación, para deshabilitar el boton Editar
+        if (LabelFicha.getText() == "0"){
+            ButtonEditar.setEnabled(false);
+        }
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -45,6 +54,7 @@ public class FichasPacientes extends javax.swing.JFrame {
         LabelFecha = new javax.swing.JLabel();
         LabelObservacion = new javax.swing.JLabel();
         LabelLogo = new javax.swing.JLabel();
+        LabelFicha = new javax.swing.JLabel();
         TextRut = new javax.swing.JTextField();
         TextFecha = new javax.swing.JTextField();
         TextObservacion = new javax.swing.JTextField();
@@ -73,6 +83,9 @@ public class FichasPacientes extends javax.swing.JFrame {
 
         LabelLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/psicologa/images/Logo transparente.png"))); // NOI18N
 
+        LabelFicha.setForeground(new java.awt.Color(255, 204, 102));
+        LabelFicha.setText("0");
+
         TextRut.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
 
         TextFecha.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
@@ -83,6 +96,7 @@ public class FichasPacientes extends javax.swing.JFrame {
         });
 
         TextObservacion.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        TextObservacion.setToolTipText("");
         TextObservacion.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 LimiteObservacion(evt);
@@ -93,11 +107,21 @@ public class FichasPacientes extends javax.swing.JFrame {
         ButtonRegistrar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         ButtonRegistrar.setForeground(new java.awt.Color(255, 255, 255));
         ButtonRegistrar.setText("Registrar");
+        ButtonRegistrar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                Registrar(evt);
+            }
+        });
 
         ButtonEditar.setBackground(new java.awt.Color(0, 173, 58));
         ButtonEditar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         ButtonEditar.setForeground(new java.awt.Color(255, 255, 255));
         ButtonEditar.setText("Editar");
+        ButtonEditar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                Editar(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -122,18 +146,20 @@ public class FichasPacientes extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(LabelObservacion)
                         .addGap(25, 25, 25)
-                        .addComponent(TextObservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, 0))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(ButtonRegistrar)
-                .addGap(199, 199, 199)
-                .addComponent(ButtonEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(233, 233, 233))
+                        .addComponent(TextObservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE))))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jSeparator1)
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(ButtonRegistrar)
+                        .addGap(199, 199, 199)
+                        .addComponent(ButtonEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(233, 233, 233))
+                    .addComponent(LabelFicha, javax.swing.GroupLayout.Alignment.TRAILING)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,7 +187,8 @@ public class FichasPacientes extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(ButtonRegistrar)
                     .addComponent(ButtonEditar))
-                .addGap(40, 40, 40))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addComponent(LabelFicha))
         );
 
         pack();
@@ -181,10 +208,85 @@ public class FichasPacientes extends javax.swing.JFrame {
     }//GEN-LAST:event_LimiteFecha
 
     private void LimiteObservacion(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteObservacion
-        if(TextObservacion.getText().length() == 100){
+        if(TextObservacion.getText().length() == 20){
             evt.consume();
         }
     }//GEN-LAST:event_LimiteObservacion
+
+    //Boton para registrar la ubicación física de una nueva ficha
+    private void Registrar(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Registrar
+        Connection C = null;
+        Statement stmt = null;
+        String ConsultaRegistrar;
+        String Rut = TextRut.getText();
+        String Fecha = TextFecha.getText();
+        String Observacion = TextObservacion.getText();
+        
+        if(Rut.isEmpty() || Fecha.isEmpty() || Observacion.isEmpty()){
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "No puede dejar campos en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            try{
+                Class.forName("org.postgresql.Driver");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                stmt = C.createStatement();
+                
+                ConsultaRegistrar = "INSERT INTO public.registro_ficha (fecha_registro, observaciones, paciente_rut)"
+                        + "VALUES ('" + Fecha + "', '" + Observacion + "', '" + Rut + "')";
+                
+                stmt.executeUpdate(ConsultaRegistrar);
+                JOptionPane.showMessageDialog(null, "Datos guardados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                
+                stmt.close();
+                C.close();
+            }
+            catch(Exception e){
+                getToolkit().beep();
+                JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        this.dispose();
+    }//GEN-LAST:event_Registrar
+
+    //Boton que realizara modificacion de la ficha solo si ya esta registrada anteriormente
+    private void Editar(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Editar
+        String Ficha = LabelFicha.getText();
+        if (Ficha != "0"){
+            Connection C = null;
+            Statement stmt = null;
+            String ConsultaEditar;
+            String Rut = TextRut.getText();
+            String Fecha = TextFecha.getText();
+            String Observacion = TextObservacion.getText();
+        
+            if(Rut.isEmpty() || Fecha.isEmpty() || Observacion.isEmpty()){
+                getToolkit().beep();
+                JOptionPane.showMessageDialog(null, "No puede dejar campos en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            else{
+                try{
+                    Class.forName("org.postgresql.Driver");
+                    C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                    stmt = C.createStatement();
+                
+                    ConsultaEditar = "UPDATE public.registro_ficha SET fecha_registro = '" + Fecha + "'"
+                            + ", observaciones = '" + Observacion + "' WHERE id_registro_ficha = '" + Ficha + "'";
+                
+                    stmt.executeUpdate(ConsultaEditar);
+                    JOptionPane.showMessageDialog(null, "Datos editados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                
+                    stmt.close();
+                    C.close();
+                }
+                catch(Exception e){
+                    getToolkit().beep();
+                    JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            this.dispose();
+        }
+    }//GEN-LAST:event_Editar
 
     /**
      * @param args the command line arguments
@@ -225,6 +327,7 @@ public class FichasPacientes extends javax.swing.JFrame {
     private javax.swing.JButton ButtonEditar;
     private javax.swing.JButton ButtonRegistrar;
     private javax.swing.JLabel LabelFecha;
+    private javax.swing.JLabel LabelFicha;
     private javax.swing.JLabel LabelLogo;
     private javax.swing.JLabel LabelObservacion;
     private javax.swing.JLabel LabelRut;

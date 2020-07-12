@@ -689,7 +689,6 @@ public class FichaClinica extends javax.swing.JFrame {
 
     //Botón para abrir la ventana para agregar fichas
     private void VerFichas(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_VerFichas
-        // TODO add your handling code here:
         if (ButtonAgregarFichas.isEnabled() == true){
             FichasPacientes x = new FichasPacientes();
         x.setVisible(true);

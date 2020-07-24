@@ -2,10 +2,11 @@
 
 package psicologa;
 
-//imports
+//Se importan las librerías a utilizar
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,25 +25,29 @@ public class FichasPacientes extends javax.swing.JFrame {
         this.getContentPane().setBackground(new java.awt.Color(255,204,102));
         this.setLocationRelativeTo(null);
         
+        //Se llama a la función para cargar la fecha del sistema
+        CargarFecha();
+        
         //Se desactiva el campo TextRut, ya que su contenido se traerá desde otro Form y se le pasa su contenido
         TextRut.setEnabled(false);
         TextRut.setText(FichaClinica.TextRut.getText());
         
-        //Obtención de fecha por parte del sistema al campo TextFecha y seteo de formato
-        SimpleDateFormat formato = new SimpleDateFormat("dd MMMMMMMMMM yyyy");
-        Date fecha = new Date(System.currentTimeMillis());
-        TextFecha.setText(formato.format(fecha));
-        TextFecha.setHorizontalAlignment(TextFecha.CENTER);
+        //Se realiza un if para verificar si el campo Rut se trae desde el form Inicio o no
+        //y luego se trae el valor del ID de la ficha y el rut del paciente desde el form Inicio
+        //Finalmente se llama la función para rellenar la ficha si ya existe
+        if(Inicio.TextRut.getText().length() != 0){
+            TextRut.setText(Inicio.TextRut.getText());
+            LabelFicha.setText(Inicio.LabelFicha.getText());
+            CargarFicha();
+        }
         
         //Se realiza focus al campo TextObservacion para que este sea en donde se posicione
         //el teclado de manera automática al momento de abrir el Form
         TextObservacion.requestFocus();
         
-        //Se realiza un if para revisar si se esta agregando o no una ubicación, para deshabilitar el boton Editar
-        if (LabelFicha.getText() == "0"){
-            ButtonEditar.setEnabled(false);
-        }
-        
+        //Se llama la función para habilitad y deshabilitar el botón Editar y el botón Eliminar
+        HabilitarEditar();
+        HabilitarEliminar();
     }
 
     @SuppressWarnings("unchecked")
@@ -60,6 +65,7 @@ public class FichasPacientes extends javax.swing.JFrame {
         TextObservacion = new javax.swing.JTextField();
         ButtonRegistrar = new javax.swing.JButton();
         ButtonEditar = new javax.swing.JButton();
+        ButtonEliminar = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -83,7 +89,6 @@ public class FichasPacientes extends javax.swing.JFrame {
 
         LabelLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/psicologa/images/Logo transparente.png"))); // NOI18N
 
-        LabelFicha.setForeground(new java.awt.Color(255, 204, 102));
         LabelFicha.setText("0");
 
         TextRut.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
@@ -123,6 +128,16 @@ public class FichasPacientes extends javax.swing.JFrame {
             }
         });
 
+        ButtonEliminar.setBackground(new java.awt.Color(0, 173, 58));
+        ButtonEliminar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        ButtonEliminar.setForeground(new java.awt.Color(255, 255, 255));
+        ButtonEliminar.setText("Eliminar");
+        ButtonEliminar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                EliminarFicha(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -159,7 +174,10 @@ public class FichasPacientes extends javax.swing.JFrame {
                         .addGap(199, 199, 199)
                         .addComponent(ButtonEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(233, 233, 233))
-                    .addComponent(LabelFicha, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(ButtonEliminar)
+                        .addGap(379, 379, 379)
+                        .addComponent(LabelFicha))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -183,17 +201,85 @@ public class FichasPacientes extends javax.swing.JFrame {
                     .addComponent(LabelLogo))
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ButtonRegistrar)
-                    .addComponent(ButtonEditar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
-                .addComponent(LabelFicha))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(ButtonRegistrar)
+                            .addComponent(ButtonEditar))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                        .addComponent(LabelFicha))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(ButtonEliminar)
+                        .addContainerGap())))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    //Se crea una función para cargar la fecha del sistema
+    private void CargarFecha(){
+        SimpleDateFormat formato = new SimpleDateFormat("dd MMMMMMMMMM yyyy");
+        Date fecha = new Date(System.currentTimeMillis());
+        TextFecha.setText(formato.format(fecha));
+        TextFecha.setHorizontalAlignment(TextFecha.CENTER);
+    }
+    //Se crea una función para habilitar y deshabilitar el botón Editar
+    private void HabilitarEditar(){
+        if(LabelFicha.getText() == "0"){
+            ButtonEditar.setEnabled(false);
+        }
+        else{
+            ButtonEditar.setEnabled(true);
+        }
+    }
+    
+    //Se crea una función para habilitar y deshabilitad el botón Eliminar
+    private void HabilitarEliminar(){
+        if(LabelFicha.getText() == "0"){
+            ButtonEliminar.setEnabled(false);
+        }
+        else{
+            ButtonEliminar.setEnabled(true);
+        }
+    }
+    
+    //Se crea la función para cargar la ficha del paciente automáticamente
+    private void CargarFicha(){
+        Connection C = null;
+        Statement stmt = null;
+        String ConsultaFicha;
+        String Ficha = LabelFicha.getText();
+        String Fecha = "", Observacion = "";
+        
+        try{
+            Class.forName("org.postgresql.Driver");
+            C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa", "Kako", "kirino");
+            stmt = C.createStatement();
+            
+            ConsultaFicha = "SELECT * FROM public.registro_ficha WHERE id_registro_ficha =  '" + Ficha + "'";
+            
+            ResultSet rs = stmt.executeQuery(ConsultaFicha);
+            
+            while(rs.next()){
+                Fecha = rs.getString("fecha_registro");
+                Observacion = rs.getString("observaciones");
+            }
+            
+            TextFecha.setText(Fecha.trim());
+            TextObservacion.setText(Observacion.trim());
+            
+            rs.close();
+            stmt.close();
+            C.close();
+        }
+        catch(Exception e){
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
     //Se crean los eventos para bloquear el largo de caracteres y dar formmato a los TextField
     private void LimiteFecha(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteFecha
         char x = evt.getKeyChar();
@@ -286,7 +372,37 @@ public class FichasPacientes extends javax.swing.JFrame {
             }
             this.dispose();
         }
+        Inicio.LabelFicha.setText("0");
     }//GEN-LAST:event_Editar
+
+    //Botón que realizará la eliminación del registro de una ficha
+    private void EliminarFicha(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_EliminarFicha
+        String Ficha = LabelFicha.getText();
+        if (Ficha != "0"){
+            Connection C = null;
+            Statement stmt = null;
+            String ConsultaEliminar;
+            
+            try{
+                Class.forName("org.postgresql.Driver");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                stmt = C.createStatement();
+                    
+                ConsultaEliminar = "DELETE FROM public.registro_ficha WHERE id_registro_ficha = '" + Ficha + "'";
+                
+                stmt.executeUpdate(ConsultaEliminar);
+                JOptionPane.showMessageDialog(null, "Ficha eliminada correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+                
+                stmt.close();
+                C.close();
+            }
+            catch(Exception e){
+                getToolkit().beep();
+                JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            this.dispose();
+        }
+    }//GEN-LAST:event_EliminarFicha
 
     /**
      * @param args the command line arguments
@@ -325,6 +441,7 @@ public class FichasPacientes extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton ButtonEditar;
+    private javax.swing.JButton ButtonEliminar;
     private javax.swing.JButton ButtonRegistrar;
     private javax.swing.JLabel LabelFecha;
     private javax.swing.JLabel LabelFicha;

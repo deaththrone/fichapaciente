@@ -1,8 +1,7 @@
 // @author Kako
-
 package psicologa;
 
-//imports
+//Se importan las librerías a utilizar
 import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,28 +14,35 @@ import javax.swing.JOptionPane;
 
 public class FichaClinica extends javax.swing.JFrame {
 
-    
     public FichaClinica() {
         initComponents();
-        
+
         //Seteo de ícono
         ImageIcon icon = new ImageIcon("C:\\Users\\Kako\\Documents\\NetBeansProjects\\Psicologa\\src\\psicologa\\images\\Logo.png");
         this.setIconImage(icon.getImage());
         //Seteo color del background y posición en la que se abrira la ventana
-        this.getContentPane().setBackground(new java.awt.Color(255,204,102));
+        this.getContentPane().setBackground(new java.awt.Color(255, 204, 102));
         this.setLocationRelativeTo(null);
-        
+
         //Obtención de fecha por parte del sistema al campo TextIngreso y seteo de formato
         SimpleDateFormat formato = new SimpleDateFormat("dd MMMMMMMMMM yyyy");
         Date fecha = new Date(System.currentTimeMillis());
         TextIngreso.setText(formato.format(fecha));
         TextIngreso.setHorizontalAlignment(TextIngreso.CENTER);
-        
+
         //Se desactiva el boton "Agregar ficha" para activarlo solo si existe el paciente
         ButtonAgregarFichas.setEnabled(false);
-                
+
+        //Se trae el dato del texto desde el form Inicio
+        TextRut.setText(Inicio.TextRut.getText());
+
+        //Se realiza un if para revisar si el campo TextRut está vacío o no
+        //Si no está vacío, se llama a la función CargaAutomaica()
+        if (TextRut.getText().length() != 0) {
+            CargaAutomatica();
+        }
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -73,7 +79,7 @@ public class FichaClinica extends javax.swing.JFrame {
         ButtonAgregarFichas = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Ficha Clínica");
 
         LabelTitulo.setFont(new java.awt.Font("Dialog", 1, 36)); // NOI18N
@@ -410,106 +416,161 @@ public class FichaClinica extends javax.swing.JFrame {
                 .addGap(40, 40, 40))
         );
 
+        getAccessibleContext().setAccessibleName("FichaClinica");
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    //Se genera una función que revise si el campo Rut está vacío o no,
+    //para así rellenar automáticamente el formulario
+    private void CargaAutomatica() {
+        Connection C = null;
+        Statement stmt = null;
+        String ConsultaRut;
+        String Rut = TextRut.getText();
+        String Serie = "", Nombre = "", Nacimiento = "", Edad = "", Domicilio = "", Correo = "", Telefono = "", Prevision = "", Ingreso = "", Motivo = "";
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa", "Kako", "kirino");
+            stmt = C.createStatement();
+
+            ConsultaRut = "SELECT * FROM public.paciente WHERE rut = '" + Rut + "'";
+
+            ResultSet rs = stmt.executeQuery(ConsultaRut);
+
+            while (rs.next()) {
+                Serie = rs.getString("n_serie");
+                Nombre = rs.getString("nombre");
+                Nacimiento = rs.getString("fecha_nacimiento");
+                Edad = rs.getString("edad");
+                Domicilio = rs.getString("direccion");
+                Correo = rs.getString("correo");
+                Telefono = rs.getString("telefono");
+                Prevision = rs.getString("sistema_previsional");
+                Ingreso = rs.getString("fecha_ingreso");
+                Motivo = rs.getString("motivo_consulta");
+            }
+
+            TextSerie.setText(Serie.trim());
+            TextNombre.setText(Nombre.trim());
+            TextNacimiento.setText(Nacimiento.trim());
+            TextEdad.setText(Edad.trim());
+            TextDomicilio.setText(Domicilio.trim());
+            TextCorreo.setText(Correo.trim());
+            TextTelefono.setText(Telefono.trim());
+            ComboPrevision.setSelectedItem(Prevision);
+            TextIngreso.setText(Ingreso.trim());
+            TextMotivo.setText(Motivo.trim());
+            ButtonAgregarFichas.setEnabled(true);
+
+            rs.close();
+            stmt.close();
+            C.close();
+        } catch (Exception e) {
+            getToolkit().beep();
+            JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
 
     //Se crean los eventos para bloquear el largo de caracteres y dar formmato a los TextField
     private void LimiteRut(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteRut
         char x = evt.getKeyChar();
-        
-        if((!Character.isDigit(x)) && x != KeyEvent.VK_MINUS && x != KeyEvent.VK_K){
+
+        if ((!Character.isDigit(x)) && x != KeyEvent.VK_MINUS && x != KeyEvent.VK_K) {
             evt.consume();
         }
-        
-        if(TextRut.getText().length() == 10){
+
+        if (TextRut.getText().length() == 10) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteRut
 
     private void LimiteSerie(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteSerie
-        if(TextSerie.getText().length() == 15){
+        if (TextSerie.getText().length() == 15) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteSerie
 
     private void LimiteNombre(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteNombre
         char x = evt.getKeyChar();
-        
-        if(!Character.isLetter(x) && x != KeyEvent.VK_SPACE){
-           evt.consume();  
-        } 
-        
-        if(TextNombre.getText().length() == 50){
+
+        if (!Character.isLetter(x) && x != KeyEvent.VK_SPACE) {
+            evt.consume();
+        }
+
+        if (TextNombre.getText().length() == 50) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteNombre
 
     private void LimiteDomicilio(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteDomicilio
-        if(TextDomicilio.getText().length() == 100){
+        if (TextDomicilio.getText().length() == 100) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteDomicilio
 
     private void LimiteEdad(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteEdad
         char x = evt.getKeyChar();
-        
-        if(!Character.isDigit(x)){
+
+        if (!Character.isDigit(x)) {
             evt.consume();
         }
-        
-        if(TextEdad.getText().length() == 2){
+
+        if (TextEdad.getText().length() == 2) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteEdad
 
     private void LimiteCorreo(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteCorreo
-        if(TextCorreo.getText().length() == 50){
+        if (TextCorreo.getText().length() == 50) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteCorreo
 
     private void LimiteTelefono(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteTelefono
         char x = evt.getKeyChar();
-        
-        if(!Character.isDigit(x) && x != KeyEvent.VK_SPACE){
+
+        if (!Character.isDigit(x) && x != KeyEvent.VK_SPACE) {
             evt.consume();
         }
-        
-        if(TextTelefono.getText().length() == 11){
+
+        if (TextTelefono.getText().length() == 11) {
             evt.consume();
         }
-        
-        if(TextTelefono.getText().length() == 1 || TextTelefono.getText().length() == 6){
+
+        if (TextTelefono.getText().length() == 1 || TextTelefono.getText().length() == 6) {
             TextTelefono.setText(TextTelefono.getText() + " ");
         }
     }//GEN-LAST:event_LimiteTelefono
 
     private void LimiteMotivo(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteMotivo
-        if(TextMotivo.getText().length() == 100){
+        if (TextMotivo.getText().length() == 100) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteMotivo
 
     private void LimiteNacimiento(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteNacimiento
         char x = evt.getKeyChar();
-        
-        if(!Character.isLetter(x) && !Character.isDigit(x) && x != KeyEvent.VK_SPACE){
+
+        if (!Character.isLetter(x) && !Character.isDigit(x) && x != KeyEvent.VK_SPACE) {
             evt.consume();
         }
-        
-        if(TextNacimiento.getText().length() == 18){
+
+        if (TextNacimiento.getText().length() == 18) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteNacimiento
 
     private void LimiteIngreso(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_LimiteIngreso
         char x = evt.getKeyChar();
-        
-        if(!Character.isLetter(x) && !Character.isDigit(x) && x != KeyEvent.VK_SPACE){
+
+        if (!Character.isLetter(x) && !Character.isDigit(x) && x != KeyEvent.VK_SPACE) {
             evt.consume();
         }
-        
-        if(TextIngreso.getText().length() == 18){
+
+        if (TextIngreso.getText().length() == 18) {
             evt.consume();
         }
     }//GEN-LAST:event_LimiteIngreso
@@ -521,22 +582,21 @@ public class FichaClinica extends javax.swing.JFrame {
         String ConsultaRut;
         String Rut = TextRut.getText();
         String Serie = "", Nombre = "", Nacimiento = "", Edad = "", Domicilio = "", Correo = "", Telefono = "", Prevision = "", Ingreso = "", Motivo = "";
-        
-        if(Rut.length() < 9){
+
+        if (Rut.length() < 9) {
             getToolkit().beep();
             JOptionPane.showMessageDialog(null, "Rut mal ingresado.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        else{
-            try{
+        } else {
+            try {
                 Class.forName("org.postgresql.Driver");
-                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa", "Kako", "kirino");
                 stmt = C.createStatement();
-                
+
                 ConsultaRut = "SELECT * FROM public.paciente WHERE rut = '" + Rut + "'";
 
                 ResultSet rs = stmt.executeQuery(ConsultaRut);
-                
-                while(rs.next()){
+
+                while (rs.next()) {
                     Serie = rs.getString("n_serie");
                     Nombre = rs.getString("nombre");
                     Nacimiento = rs.getString("fecha_nacimiento");
@@ -548,11 +608,10 @@ public class FichaClinica extends javax.swing.JFrame {
                     Ingreso = rs.getString("fecha_ingreso");
                     Motivo = rs.getString("motivo_consulta");
                 }
-                
-                if(Nombre == ""){
+
+                if (Nombre == "") {
                     JOptionPane.showMessageDialog(null, "Paciente no existe.\nPuede proceder a agregarlo.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-                }
-                else{
+                } else {
                     TextSerie.setText(Serie.trim());
                     TextNombre.setText(Nombre.trim());
                     TextNacimiento.setText(Nacimiento.trim());
@@ -565,12 +624,11 @@ public class FichaClinica extends javax.swing.JFrame {
                     TextMotivo.setText(Motivo.trim());
                     ButtonAgregarFichas.setEnabled(true);
                 }
-                
+
                 rs.close();
                 stmt.close();
                 C.close();
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 getToolkit().beep();
                 JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -593,29 +651,27 @@ public class FichaClinica extends javax.swing.JFrame {
         String Prevision = ComboPrevision.getSelectedItem().toString();
         String Ingreso = TextIngreso.getText();
         String Motivo = TextMotivo.getText();
-        
-        if(Rut.isEmpty() || Nombre.isEmpty() || Nacimiento.isEmpty() || 
-                Domicilio.isEmpty() || Ingreso.isEmpty() || Motivo.isEmpty()){
+
+        if (Rut.isEmpty() || Nombre.isEmpty() || Nacimiento.isEmpty()
+                || Domicilio.isEmpty() || Ingreso.isEmpty() || Motivo.isEmpty()) {
             getToolkit().beep();
             JOptionPane.showMessageDialog(null, "Hay campos que no pueden quedar en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        else{
-            try{
+        } else {
+            try {
                 Class.forName("org.postgresql.Driver");
-                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa", "Kako", "kirino");
                 stmt = C.createStatement();
-                
+
                 ConsultaGuardar = "INSERT INTO public.paciente VALUES ('" + Rut + "', '" + Serie + "', '" + Nombre + "', "
                         + "'" + Nacimiento + "', '" + Domicilio + "', '" + Edad + "', '" + Telefono + "', '" + Correo + "', "
                         + "'" + Prevision + "', '" + Ingreso + "', '" + Motivo + "')";
-                
+
                 stmt.executeUpdate(ConsultaGuardar);
                 JOptionPane.showMessageDialog(null, "Datos guardados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-                
+
                 stmt.close();
                 C.close();
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 getToolkit().beep();
                 JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -638,30 +694,28 @@ public class FichaClinica extends javax.swing.JFrame {
         String Prevision = ComboPrevision.getSelectedItem().toString();
         String Ingreso = TextIngreso.getText();
         String Motivo = TextMotivo.getText();
-        
-        if(Rut.isEmpty() || Nombre.isEmpty() || Nacimiento.isEmpty() || 
-                Domicilio.isEmpty() || Ingreso.isEmpty() || Motivo.isEmpty()){
+
+        if (Rut.isEmpty() || Nombre.isEmpty() || Nacimiento.isEmpty()
+                || Domicilio.isEmpty() || Ingreso.isEmpty() || Motivo.isEmpty()) {
             getToolkit().beep();
             JOptionPane.showMessageDialog(null, "Hay campos que no pueden quedar en blanco.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        else{
-            try{
+        } else {
+            try {
                 Class.forName("org.postgresql.Driver");
-                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa","Kako","kirino");
+                C = DriverManager.getConnection("jdbc:postgresql://localhost:5432/psicologa", "Kako", "kirino");
                 stmt = C.createStatement();
-                
+
                 ConsultaEditar = "UPDATE public.paciente SET n_serie = '" + Serie + "', nombre = '" + Nombre + "'"
                         + ", fecha_nacimiento = '" + Nacimiento + "', direccion = '" + Domicilio + "', edad = '" + Edad + "'"
                         + ", telefono = '" + Telefono + "', correo = '" + Correo + "', sistema_previsional = '" + Prevision + "'"
                         + ", fecha_ingreso = '" + Ingreso + "', motivo_consulta = '" + Motivo + "' WHERE rut = '" + Rut + "'";
-                
+
                 stmt.executeUpdate(ConsultaEditar);
                 JOptionPane.showMessageDialog(null, "Datos editados correctamente", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-                
+
                 stmt.close();
                 C.close();
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 getToolkit().beep();
                 JOptionPane.showMessageDialog(null, "No se pudo conectar con la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -681,7 +735,7 @@ public class FichaClinica extends javax.swing.JFrame {
         TextMotivo.setText("");
         ComboPrevision.setSelectedIndex(0);
         ButtonAgregarFichas.setEnabled(false);
-        
+
         SimpleDateFormat formato = new SimpleDateFormat("dd MMMMMMMMMM yyyy");
         Date fecha = new Date(System.currentTimeMillis());
         TextIngreso.setText(formato.format(fecha));
@@ -689,9 +743,9 @@ public class FichaClinica extends javax.swing.JFrame {
 
     //Botón para abrir la ventana para agregar fichas
     private void VerFichas(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_VerFichas
-        if (ButtonAgregarFichas.isEnabled() == true){
+        if (ButtonAgregarFichas.isEnabled() == true) {
             FichasPacientes x = new FichasPacientes();
-        x.setVisible(true);
+            x.setVisible(true);
         }
     }//GEN-LAST:event_VerFichas
 
